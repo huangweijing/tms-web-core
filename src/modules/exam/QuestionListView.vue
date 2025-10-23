@@ -1,7 +1,7 @@
 <template>
   <v-card
     ><v-card-title class="d-flex align-center ga-2"
-      ><v-icon>mdi-help-box</v-icon> 問題管理<v-spacer /><v-btn
+      ><v-icon>mdi-book-open</v-icon> 問題管理<v-spacer /><v-btn
         v-if="mode === 'edit'"
         color="primary"
         prepend-icon="mdi-plus"
@@ -17,15 +17,13 @@
               label="問題ＩＤ(UUID)"
               hide-details
               density="comfortable"
-              style="max-width: 320px"
-            /><v-select
+              style="max-width: 320px" /><v-select
               v-model="filterSkill"
               :items="skillOptions"
               label="スキル"
               hide-details
               density="comfortable"
-              style="max-width: 200px"
-            /><v-text-field
+              style="max-width: 200px" /><v-text-field
               v-model.number="filterLvFrom"
               type="number"
               min="1"
@@ -33,8 +31,7 @@
               label="難易度From"
               hide-details
               density="comfortable"
-              style="max-width: 140px"
-            /><v-text-field
+              style="max-width: 140px" /><v-text-field
               v-model.number="filterLvTo"
               type="number"
               min="1"
@@ -42,8 +39,7 @@
               label="難易度To"
               hide-details
               density="comfortable"
-              style="max-width: 140px"
-            /><v-select
+              style="max-width: 140px" /><v-select
               v-model="filterAuto"
               :items="[
                 { title: '指定なし', value: undefined },
@@ -53,8 +49,7 @@
               label="自動生成"
               hide-details
               density="comfortable"
-              style="max-width: 200px"
-            /></div></template
+              style="max-width: 200px" /></div></template
       ></SearchBar>
       <div class="mt-4">
         <template v-if="loading"><v-skeleton-loader type="table" /></template
@@ -70,16 +65,22 @@
             ><template #item.自動生成フラグ="{ item }"
               ><v-chip size="small" :color="item.自動生成フラグ === 1 ? 'secondary' : 'primary'">{{
                 item.自動生成フラグ === 1 ? '自動' : '手動'
-              }}</v-chip></template
-            ><template v-if="mode === 'edit'" #item.actions="{ item }"
-              ><div class="d-flex ga-2">
+              }}</v-chip>
+            </template>
+            <template v-if="mode === 'select'" #item.actions="{ item }">
+              <div class="d-flex ga-2">
                 <v-btn
                   size="small"
                   color="secondary"
                   prepend-icon="mdi-eye"
                   @click.stop="openView(item)"
                   >参照</v-btn
-                ><v-btn
+                >
+              </div>
+            </template>
+            <template v-if="mode === 'edit'" #item.actions="{ item }"
+              ><div class="d-flex ga-2">
+                <v-btn
                   size="small"
                   color="primary"
                   prepend-icon="mdi-pencil"
@@ -101,20 +102,17 @@
                   v-model="pageSize"
                   density="compact"
                   label="ページサイズ"
-                  style="max-width: 140px"
-                /><v-pagination
+                  style="max-width: 140px" /><v-pagination
                   v-model="page"
                   :length="pageCount"
-                  @update:modelValue="fetchList"
-                /></div></template></v-data-table
+                  @update:modelValue="fetchList" /></div></template></v-data-table
         ></template></div></v-card-text></v-card
   ><QuestionDetailModal
     v-model:open="detailOpen"
     :mode="detailMode"
     :question-id="editingId"
     @saved="onRefetch"
-    @deleted="onRefetch"
-  /><ErrorDialog v-model:open="errorOpen" :message="errorMessage" />
+    @deleted="onRefetch" /><ErrorDialog v-model:open="errorOpen" :message="errorMessage" />
 </template>
 <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue';
@@ -147,8 +145,8 @@
   ];
   const computedHeaders = computed(() =>
     props.mode === 'edit'
-      ? [...headersBase, { title: '操作', key: 'actions', width: 300, sortable: false }]
-      : headersBase
+      ? [...headersBase, { title: '操作', key: 'actions', width: 200, sortable: false }]
+      : [...headersBase, { title: '操作', key: 'actions', width: 100, sortable: false }]
   );
   const loading = ref(true);
   const deletingId = ref<string | null>(null);
@@ -231,8 +229,7 @@
     }
   }
   function onRowClick(e: MouseEvent, ctx: any) {
-    if (props.mode === 'select' && e.detail >= 2 && ctx?.item)
-      emit('selected', ctx.item as Question);
+    if (props.mode === 'select' && ctx?.item) emit('selected', ctx.item as Question);
   }
   function onRefetch() {
     fetchList();

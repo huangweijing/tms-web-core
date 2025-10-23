@@ -4,7 +4,7 @@
       <!-- 上部はタイトル＋閉じるのみ（操作は一覧側に委譲） -->
       <v-toolbar density="comfortable" color="primary">
         <v-toolbar-title>
-          <v-icon class="mr-2">mdi-help-box</v-icon>{{ title }}
+          <v-icon class="mr-2">mdi-book-open</v-icon>{{ title }}
           <span v-if="mode === 'select'">（選択）</span>
           <span v-else>（編集）</span>
         </v-toolbar-title>

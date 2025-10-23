@@ -9,7 +9,7 @@
     <v-btn icon :to="{ path: '/personnel' }" title="Personnel"
       ><v-icon>mdi-account-multiple</v-icon></v-btn
     >
-    <v-btn icon :to="{ path: '/skill' }" title="Skills"><v-icon>mdi-school</v-icon></v-btn>
+    <v-btn icon :to="{ path: '/questions' }" title="問題管理"><v-icon>mdi-book-open</v-icon></v-btn>
     <v-snackbar
       v-model="snackbarModel"
       location="top right"
