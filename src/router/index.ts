@@ -1,8 +1,8 @@
-
 import { createRouter, createWebHistory } from 'vue-router';
 import DashboardView from '@/views/DashboardView.vue';
 import PersonnelView from '@/views/PersonnelView.vue';
 import SkillView from '@/views/SkillView.vue';
+import QuestionView from '@/views/QuestionView.vue';
 
 export default createRouter({
   history: createWebHistory(),
@@ -10,6 +10,7 @@ export default createRouter({
     { path: '/', redirect: '/dashboard' },
     { path: '/dashboard', component: DashboardView },
     { path: '/personnel', component: PersonnelView },
-    { path: '/skill', component: SkillView }
-  ]
+    { path: '/skill', component: SkillView },
+    { path: '/questions', component: QuestionView },
+  ],
 });
