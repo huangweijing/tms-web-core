@@ -45,8 +45,7 @@
     <QuestionListDialog
       v-model:open="selectOpenQuestion"
       mode="select"
-      @selected="onSelectedQuestion"
-    />
+      @selected="onSelectedQuestion" />
   </div>
 </template>
 <script setup lang="ts">

@@ -9,7 +9,11 @@
       <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard" to="/dashboard" />
       <v-list-item prepend-icon="mdi-account-multiple" title="人材管理" to="/personnel" />
       <v-list-item prepend-icon="mdi-book-open" title="問題管理" to="/questions" />
-      <v-list-item prepend-icon="mdi-file-document-multiple" title="試験用紙" to="/exam-papers" />
+      <v-list-item
+        prepend-icon="mdi-file-document-multiple"
+        title="試験用紙管理"
+        to="/exam-papers" />
+      <v-list-item prepend-icon="mdi-clipboard-text" title="試験実施管理" to="/exam-runs" />
     </v-list>
   </v-navigation-drawer>
 </template>

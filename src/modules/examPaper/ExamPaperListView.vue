@@ -198,7 +198,6 @@
     }
   }
   function onRowClick(e: MouseEvent, ctx: any) {
-    if (props.mode === 'select' && e.detail >= 2 && ctx?.item)
-      emit('selected', ctx.item as ExamPaper);
+    if (props.mode === 'select' && ctx?.item) emit('selected', ctx.item as ExamPaper);
   }
 </script>

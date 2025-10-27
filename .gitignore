@@ -68,6 +68,9 @@ Desktop.ini
 tmp/
 temp/
 
+# --- ステップカウント ---
+.VSCodeCounter
+
 # --- (オプション) Yarn Berry を使う場合は下を有効化 ---
 # .yarn/*
 # !.yarn/patches
