@@ -146,7 +146,7 @@ export function mapQuestionToPaperProblem(question: Question, paperId: string): 
 
 export async function invokeGenerateApi(request: GenerationRequest): Promise<Question[]> {
   try {
-    console.log(http);
+    // console.log(http);
     const { data } = await http.post<Question[]>('/api/exam/generate', request);
     if (!Array.isArray(data)) {
       return [];

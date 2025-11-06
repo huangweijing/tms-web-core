@@ -5,6 +5,9 @@ import type { PersonnelSkillPayload, SkillItem } from '@/types/models/Skill';
 import type { ExamSession, ExamSubmissionPayload } from '@/types/models/Exam';
 
 import { useExamStore } from '@/store/examRunStore';
+import { ResumeData } from '@/types/models/Resume';
+import { SkillSummary } from '@/types/models/SkillSummary';
+import { http } from '@/plugins/axios';
 
 const PERSONNEL: Personnel[] = [
   {
@@ -817,6 +820,11 @@ export async function aiGenerateQuestion(seed?: Partial<Question>): Promise<Ques
     削除フラグ: 0,
   };
   return delay(result, 1200);
+}
+
+export async function aiAnalyseResume(resumeData?: ResumeData): Promise<SkillSummary> {
+  const { data } = await http.post<SkillSummary>('/api/resume/analyse', resumeData);
+  return data;
 }
 
 const SAMPLE_EXAM: ExamSession = {
