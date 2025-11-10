@@ -51,6 +51,9 @@
                 >{{ statusLabel(item.試験ステータス) }}</v-chip
               ></template
             >
+            <template #item.試験ＩＤ="{ item }">
+              <v-chip size="default" variant="outlined" color="text">{{ item.試験ＩＤ }}</v-chip>
+            </template>
             <template #item.試験用紙="{ item }">{{ item.試験用紙?.試験用紙名称 }}</template>
             <template #item.採点="{ item }">
               <!--実施完了、人材DB反映済の場合のみ正解数を表示-->

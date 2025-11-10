@@ -50,7 +50,7 @@
           label="試験リンクID"
           hide-details
           density="comfortable"
-          style="max-width: 280px" />
+          style="max-width: 400px" />
 
         <v-btn color="primary" prepend-icon="mdi-lead-pencil" @click="openExamSession"
           >試験実施</v-btn
@@ -107,7 +107,7 @@
   </div>
 </template>
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { useRouter } from 'vue-router';
   const router = useRouter();
   import { useToast } from '@/plugins/toast';
@@ -115,6 +115,8 @@
   import PersonnelSelectModal from '@/modules/personnel/PersonnelSelectModal.vue';
   import QuestionListDialog from '@/modules/exam/QuestionListDialog.vue';
   import ResumeDetailModal from '@/modules/resume/ResumeDetailModal.vue';
+  import { ExamRunStoreRepo } from '@/data/RepoStoreImp';
+  import { Pagination } from '@/types/models/Pagination';
 
   const toast = useToast();
   const selectOpenResumeDetail = ref(false);
@@ -131,6 +133,17 @@
   const onSelectedQuestion = (item: any) => {
     selectedQuestion.value = item;
   };
+
+  onMounted(() => {
+    const res = new ExamRunStoreRepo().list({
+      page: 1,
+      size: 1,
+    });
+    if (res.items && res.items.length > 0) {
+      examLinkId.value = res.items[0].試験ＩＤ;
+    }
+  });
+
   const openExamSession = () => {
     router.push({
       path: '/exam-session',

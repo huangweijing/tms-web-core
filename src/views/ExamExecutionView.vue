@@ -208,6 +208,7 @@
   import {
     buildSubmissionPayload,
     fetchExamSessionById,
+    startExamRun,
     submitExamAnswers,
   } from '@/composables/useApi';
   import type { ExamQuestion } from '@/types/models/Exam';
@@ -276,12 +277,9 @@
       }
 
       examData.value = res;
-
-      // 初期回答（空）
-      // res.試験用紙.問題リスト.forEach((p) => {
-      //   answers[p.試験用紙問題ＩＤ] = '';
-      // });
+      startExamRun(linkId);
     } catch (e) {
+      console.log(e);
       errorMessage.value = '試験データを取得できませんでした。';
       errorOpen.value = true;
     } finally {

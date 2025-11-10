@@ -20,10 +20,10 @@ export const EXAM_RUN_STATUS = {
 } as const;
 
 export const EXAM_RUN_STATUS_COLOR = {
-  0: 'info',
-  1: 'grey',
+  0: 'grey',
+  1: 'info',
   2: 'primary',
-  3: 'success',
+  3: 'cyan',
   4: 'success',
   9: 'error',
 } as const;

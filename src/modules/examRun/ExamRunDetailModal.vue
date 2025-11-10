@@ -323,9 +323,9 @@
       <v-card-actions v-if="!isView">
         <v-spacer />
         <v-btn variant="text" @click="model = false">キャンセル</v-btn>
-        <v-btn color="primary" prepend-icon="mdi-content-save" :loading="saving" @click="onSaveBase"
+        <!-- <v-btn color="primary" prepend-icon="mdi-content-save" :loading="saving" @click="onSaveBase"
           >試験準備保存</v-btn
-        >
+        > -->
         <v-btn
           v-if="isEditableBase"
           color="primary"
@@ -487,6 +487,7 @@
       saved = await confirmExamRun(saved?.試験ＩＤ);
       Object.assign(form, saved);
       toast.show('試験基本情報を確定しました', 'success');
+      emit('saved');
     } finally {
       saving.value = false;
     }
