@@ -14,5 +14,6 @@ export interface ExamRun {
   試験実施日時?: string;
   試験提出日時?: string;
   試験用紙?: ExamPaper;
+  試験正解数?: number;
   試験問題解答?: ExamAnswer[];
 }

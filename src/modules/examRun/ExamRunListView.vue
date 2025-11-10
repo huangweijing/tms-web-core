@@ -42,6 +42,7 @@
             :page="page"
             item-key="試験ＩＤ"
             class="elevation-1 rounded-lg">
+            <template #item.="{ item }"> </template>
             <template #item.試験ステータス="{ item }"
               ><v-chip
                 size="small"
@@ -50,6 +51,20 @@
                 >{{ statusLabel(item.試験ステータス) }}</v-chip
               ></template
             >
+            <template #item.試験用紙="{ item }">{{ item.試験用紙?.試験用紙名称 }}</template>
+            <template #item.採点="{ item }">
+              <!--実施完了、人材DB反映済の場合のみ正解数を表示-->
+              <div v-if="[3, 4].includes(item.試験ステータス)">
+                {{ item.試験正解数 }}問 / {{ item.試験用紙?.問題リスト.length }}問
+              </div>
+              <div v-else>未実施</div>
+            </template>
+            <template #item.試験提出日時="{ item }">
+              <!--実施完了、人材DB反映済の場合のみ正解数を表示-->
+              <div v-if="[3, 4].includes(item.試験ステータス) && item.試験提出日時">
+                {{ utcToJst(item.試験提出日時) }}
+              </div>
+            </template>
             <template #item.actions="{ item }">
               <div class="d-flex ga-2">
                 <v-btn size="small" color="secondary" prepend-icon="mdi-eye" @click="openView(item)"
@@ -90,10 +105,10 @@
 <script setup lang="ts">
   import { ref, onMounted, computed } from 'vue';
   import SearchBar from '@/components/shared/SearchBar.vue';
-  import { EXAM_RUN_STATUS, EXAM_RUN_STATUS_COLOR } from '@/types/codes';
+  import { EXAM_RUN_STATUS, EXAM_RUN_STATUS_COLOR, 試験実施ステータス } from '@/types/codes';
   import ExamRunDetailModal from './ExamRunDetailModal.vue';
   import type { ExamRun } from '@/types/models/ExamRun';
-  import { listExamRuns } from '@/composables/useApi';
+  import { listExamRuns, utcToJst } from '@/composables/useApi';
 
   const items = ref<ExamRun[]>([]);
   const total = ref(0);
@@ -111,9 +126,11 @@
 
   const headers = [
     { title: '試験ＩＤ', key: '試験ＩＤ', width: 280 },
-    { title: '参加者氏名', key: '参加者氏名', width: 180 },
-    { title: '試験ステータス', key: '試験ステータス', width: 160 },
-    { title: '試験実施日時', key: '試験実施日時', width: 160 },
+    { title: '試験用紙', key: '試験用紙', width: 280 },
+    { title: '参加者氏名', key: '参加者氏名', width: 160 },
+    { title: '試験ステータス', key: '試験ステータス', width: 150 },
+    { title: '正解/合計', key: '採点', width: 120 },
+    { title: '試験提出日時', key: '試験提出日時', width: 160 },
     { title: '操作', key: 'actions', width: 200, sortable: false },
   ];
   const pageCount = computed(() => Math.ceil(total.value / pageSize.value));

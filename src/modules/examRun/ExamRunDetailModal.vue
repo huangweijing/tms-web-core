@@ -81,12 +81,6 @@
                 >
               </v-row>
               <v-row>
-                <!-- <v-tooltip text="コピーします"></v-tooltip>
-              <v-alert type="info" variant="tonal"
-                >試験用紙が未設定です。試験基本情報にてご設定ください。</v-alert
-              > -->
-              </v-row>
-              <v-row>
                 <v-col cols="12" md="6" class="d-flex ga-2 align-center"
                   ><v-text-field
                     :model-value="form.試験用紙?.試験用紙ＩＤ || '-'"
@@ -104,15 +98,7 @@
                     >試験用紙選択</v-btn
                   ></v-col
                 >
-                <v-col cols="12" md="6" class="d-flex ga-2 align-center">
-                  <v-btn
-                    v-if="isEditableBase"
-                    color="primary"
-                    prepend-icon="mdi-check-decagram"
-                    @click="onConfirmBase"
-                    >試験確定</v-btn
-                  >
-                </v-col>
+                <v-col cols="12" md="6" class="d-flex ga-2 align-center"> </v-col>
               </v-row>
             </v-card-text>
           </v-expand-transition>
@@ -234,41 +220,57 @@
                             prepend-icon="mdi-stairs"
                             >難易度 {{ p.難易度 }}</v-chip
                           >
+
+                          <v-chip
+                            v-if="!userAnswerOf(p.試験用紙問題ＩＤ)"
+                            v-show="false"
+                            size="small"
+                            color="text-disabled"
+                            variant="elevated"
+                            prepend-icon="mdi-stairs">
+                            未回答
+                          </v-chip>
+                          <v-chip
+                            v-else-if="isCorrect(p)"
+                            size="small"
+                            color="success"
+                            variant="tonal"
+                            prepend-icon="mdi-checkbox-marked-circle-outline">
+                            正解
+                          </v-chip>
+                          <v-chip
+                            v-else
+                            size="small"
+                            color="error"
+                            variant="tonal"
+                            prepend-icon="mdi-close-circle-outline">
+                            不正解
+                          </v-chip>
                         </div>
                         <div class="text-subtitle-2">{{ p.問題文章 }}</div>
                         <v-list density="compact" lines="two" class="mt-1">
                           <template v-if="isResultVisible">
-                            <template v-if="isCorrect(p)">
-                              <v-list-item
-                                v-for="c in p.選択肢"
-                                v-show="c.選択肢ＩＤ === p.模範回答"
-                                :key="c.選択肢ＩＤ"
-                                :title="c.選択肢文章"
-                                :subtitle="c.回答理由">
-                                <template #prepend
-                                  ><v-icon color="success">mdi-check-circle</v-icon></template
+                            <!-- <template v-if="isCorrect(p)"> -->
+                            <!-- v-show="c.選択肢ＩＤ === p.模範回答" -->
+                            <v-list-item
+                              v-for="c in p.選択肢"
+                              :key="c.選択肢ＩＤ"
+                              :title="c.選択肢文章"
+                              :subtitle="c.回答理由">
+                              <template #prepend>
+                                <v-icon v-if="c.選択肢ＩＤ == p.模範回答" color="success"
+                                  >mdi-checkbox-marked-circle-outline</v-icon
                                 >
-                              </v-list-item>
-                            </template>
-                            <template v-else>
-                              <template v-for="c in p.選択肢">
-                                <v-list-item
-                                  v-if="
-                                    c.選択肢ＩＤ === userAnswerOf(p.試験用紙問題ＩＤ) ||
-                                    c.選択肢ＩＤ === p.模範回答
-                                  "
-                                  :key="c.選択肢ＩＤ"
-                                  :title="c.選択肢文章"
-                                  :subtitle="c.回答理由">
-                                  <template #prepend>
-                                    <v-icon v-if="c.選択肢ＩＤ === p.模範回答" color="success"
-                                      >mdi-check-circle</v-icon
-                                    >
-                                    <v-icon v-else color="error">mdi-close-circle</v-icon>
-                                  </template>
-                                </v-list-item>
+                                <v-icon
+                                  v-else-if="c.選択肢ＩＤ == userAnswerOf(p.試験用紙問題ＩＤ)"
+                                  color="error"
+                                  >mdi-close-circle-outline</v-icon
+                                >
+                                <v-icon v-else color="text-disabled"
+                                  >mdi-checkbox-blank-circle-outline</v-icon
+                                >
                               </template>
-                            </template>
+                            </v-list-item>
                           </template>
                           <template v-else>
                             <v-list-item
@@ -324,6 +326,13 @@
         <v-btn color="primary" prepend-icon="mdi-content-save" :loading="saving" @click="onSaveBase"
           >試験準備保存</v-btn
         >
+        <v-btn
+          v-if="isEditableBase"
+          color="primary"
+          prepend-icon="mdi-check-decagram"
+          @click="onConfirmBase"
+          >試験確定</v-btn
+        >
       </v-card-actions>
 
       <v-overlay :model-value="saving || linkLoading" persistent />
@@ -361,7 +370,6 @@
     登録済人材: 0,
     試験ステータス: 0,
     試験実施日時: '',
-    // 試験リンクＩＤ: '',
     試験用紙: undefined,
     試験問題解答: [],
   });
@@ -441,7 +449,6 @@
           参加者人材ＩＤ: '',
           登録済人材: 0,
           試験ステータス: 0,
-          試験リンクＩＤ: '',
           試験実施日時: '',
           試験用紙: undefined,
           試験問題解答: [],

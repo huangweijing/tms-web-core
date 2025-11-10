@@ -301,6 +301,7 @@ export async function startExamRun(id: string): Promise<ExamRun | undefined> {
   return delay(examRun);
 }
 
+// 試験実施・選択状況収集
 export function buildSubmissionPayload(
   exam: ExamRun,
   answers: Record<string, string>
@@ -317,9 +318,74 @@ export function buildSubmissionPayload(
   };
 }
 
+// 試験提出
 export async function submitExamAnswers(payload: ExamSubmissionPayload): Promise<void> {
+  debugger;
   console.log('submitExamAnswers payload', payload);
+  const repo: ExamRunStoreRepo = new ExamRunStoreRepo();
+  const examRun = repo.findById(payload.試験ＩＤ);
+  if (!examRun) throw new Error('試験実施情報が存在しません。');
+  examRun.試験提出日時 = new Date().toISOString();
+  examRun.試験ステータス = 試験実施ステータス.実施完了;
+  const answerMap = new Map<string, string>();
+  payload.試験問題解答.forEach((ans) => {
+    answerMap.set(ans.試験用紙問題ＩＤ, ans.回答試験用紙選択肢ＩＤ);
+    examRun.試験問題解答?.push({
+      試験用紙問題ＩＤ: ans.試験用紙問題ＩＤ,
+      回答試験用紙選択肢ＩＤ: ans.回答試験用紙選択肢ＩＤ,
+    });
+  });
+  examRun.試験正解数 = 0;
+  examRun.試験用紙?.問題リスト.forEach((question) => {
+    if (question.模範回答 === answerMap.get(question.試験用紙問題ＩＤ)) {
+      examRun.試験正解数 = (examRun.試験正解数 ?? 0) + 1;
+    }
+  });
+  repo.save(examRun);
+
   await delay(500);
   // デモのため常に成功
   return;
+}
+
+/**
+ * UTCのISO文字列(例: "2025-11-10T05:22:10.832Z")をJSTに変換して整形します。
+ * fmt: 'YYYY-MM-DD HH:mm:ss' | 'YYYY/MM/DD HH:mm:ss' | 'ISO'
+ */
+export function utcToJst(
+  isoUtc: string,
+  fmt: 'YYYY-MM-DD HH:mm:ss' | 'YYYY/MM/DD HH:mm:ss' | 'ISO' = 'YYYY-MM-DD HH:mm:ss'
+): string {
+  const d = new Date(isoUtc); // Z付きならUTCとして解釈される
+  if (Number.isNaN(d.getTime())) {
+    throw new Error(`Invalid date: ${isoUtc}`);
+  }
+
+  // JSTで各パーツを取得
+  const dtf = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+
+  const parts = Object.fromEntries(dtf.formatToParts(d).map((p) => [p.type, p.value])) as Record<
+    string,
+    string
+  >;
+
+  const base = `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+
+  switch (fmt) {
+    case 'YYYY/MM/DD HH:mm:ss':
+      return `${parts.year}/${parts.month}/${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+    case 'ISO':
+      return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+09:00`;
+    default:
+      return base; // 'YYYY-MM-DD HH:mm:ss'
+  }
 }
