@@ -44,6 +44,9 @@
           <v-alert type="info" variant="tonal"
             >生成された問題はこの試験用紙へ追加されます（IDは新規採番）。</v-alert
           >
+          <v-alert type="info" variant="tonal"
+            >自動生成には約3分ほどかかります。しばらくお待ちください。</v-alert
+          >
         </div>
       </v-card-text>
       <v-card-actions>
@@ -77,7 +80,7 @@
   const skills = ref<string[]>([]);
   const jobPosting = ref<string>('');
   const levelFrom = ref(3);
-  const levelTo = ref(5);
+  const levelTo = ref(9);
   const count = ref(5);
   const loading = ref(false);
   const skillOptions = ref<string[]>([]);

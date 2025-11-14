@@ -89,8 +89,21 @@ export async function invokeGenerateApi(request: GenerationRequest): Promise<Que
     if (!Array.isArray(data)) {
       return [];
     }
+    // 選択肢の順番をシャッフルする
+    data.forEach((q) => {
+      q.選択肢 = shuffleArray(q.選択肢);
+    });
     return data;
   } catch (e) {
     throw e;
   }
+}
+
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array]; // 元の配列を変更しないようコピー
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // 0〜iのランダム整数
+    [result[i], result[j]] = [result[j], result[i]]; // 要素を交換
+  }
+  return result;
 }
