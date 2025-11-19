@@ -1,6 +1,13 @@
 export const BP区分 = { 社員: 0, BP: 1 } as const;
 export const 削除フラグ = { 有効: 0, 削除: 1 } as const;
 export const 自動生成フラグ = { 手動: 0, 自動生成: 1 } as const;
+
+export const BP_FLAG_ITEMS = [
+  { title: '指定なし', value: undefined },
+  { title: '社員', value: 0 },
+  { title: 'BP', value: 1 },
+] as const;
+
 export const 試験実施ステータス = {
   準備中: 0,
   未実施: 1,

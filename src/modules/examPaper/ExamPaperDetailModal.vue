@@ -1,18 +1,29 @@
 <template>
-  <v-dialog v-model="model" max-width="980" :scrim="true" close-on-esc close-on-back>
-    <v-card class="fixed-dialog">
+  <v-dialog
+    v-model="model"
+    :max-width="isFullscreen ? undefined : 980"
+    :scrim="true"
+    :fullscreen="isFullscreen"
+    close-on-esc
+    close-on-back>
+    <v-card class="fixed-dialog d-flex flex-column h-100">
       <v-toolbar density="comfortable" color="primary" class="text-white">
         <v-toolbar-title>試験用紙（{{ titleByMode }}）</v-toolbar-title>
-        <v-spacer /><v-btn icon @click="model = false" title="閉じる"
-          ><v-icon>mdi-close</v-icon></v-btn
-        >
+        <v-spacer />
+        <v-btn icon variant="text" @click="isFullscreen = !isFullscreen">
+          <v-icon>
+            {{ isFullscreen ? 'mdi-window-restore' : 'mdi-window-maximize' }}
+          </v-icon>
+        </v-btn>
+
+        <v-btn icon @click="model = false" title="閉じる"><v-icon>mdi-close</v-icon></v-btn>
       </v-toolbar>
 
       <template v-if="loading"
         ><v-card-text><v-skeleton-loader type="article" /></v-card-text
       ></template>
 
-      <v-card-text v-else>
+      <v-card-text class="flex-grow-1 overflow-y-auto" v-else>
         <div class="grid gap-4">
           <v-text-field
             :model-value="form.試験用紙ＩＤ"
@@ -109,7 +120,7 @@
         </div>
       </v-card-text>
 
-      <v-card-actions v-if="!isView">
+      <v-card-actions v-if="!isView" class="justify-end">
         <v-spacer />
         <v-btn variant="text" @click="model = false">キャンセル</v-btn>
         <v-btn variant="tonal" prepend-icon="mdi-robot" :loading="genLoading" @click="aiOpen = true"
@@ -154,6 +165,8 @@
   const props = defineProps<{ open: boolean; mode: Mode; paperId?: string }>();
   const emit = defineEmits<{ (e: 'update:open', v: boolean): void; (e: 'saved'): void }>();
 
+  const isFullscreen = ref(false);
+
   const model = computed({ get: () => props.open, set: (v: boolean) => emit('update:open', v) });
   const isView = computed(() => props.mode === 'view');
   const isCreate = computed(() => props.mode === 'create');
@@ -179,7 +192,10 @@
   watch(
     () => props.open,
     async (v) => {
-      if (v) await load();
+      if (v) {
+        isFullscreen.value = false;
+        await load();
+      }
     },
     { immediate: true }
   );

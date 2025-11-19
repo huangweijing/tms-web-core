@@ -98,6 +98,21 @@
       <v-card-text> </v-card-text>
     </v-card>
 
+    <v-card class="mb-4">
+      <v-card-title class="d-flex align-center ga-2">
+        <v-icon>mdi-account-search</v-icon>
+        要員提案一覧<v-spacer />
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-arrange-send-backward"
+          @click="selectOpenResumeDetail = true"
+          :to="{ path: '/proposal' }"
+          >要員提案一覧を開く</v-btn
+        >
+      </v-card-title>
+      <v-card-text> </v-card-text>
+    </v-card>
+
     <ResumeDetailModal v-model:open="selectOpenResumeDetail"></ResumeDetailModal>
     <PersonnelSelectModal v-model:open="selectOpenPersonnel" @selected="onSelectedPersonnel" />
     <QuestionListDialog

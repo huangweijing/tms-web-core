@@ -1,10 +1,10 @@
 // src/api/http.ts
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const BASE_URL =
-  (import.meta as any).env?.VITE_API_BASE_URL ??
-  'https://tms-service-hnbdecgsepaxarhr.canadacentral-01.azurewebsites.net/';
-// const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL ?? 'http://localhost:8080';
+// const BASE_URL =
+//   (import.meta as any).env?.VITE_API_BASE_URL ??
+//   'https://tms-service-hnbdecgsepaxarhr.canadacentral-01.azurewebsites.net/';
+const BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
 // アプリ側から差し込めるトークン取得関数（任意）
 let tokenProvider: (() => string | null | Promise<string | null>) | null = null;

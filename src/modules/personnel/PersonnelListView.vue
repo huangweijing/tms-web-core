@@ -114,6 +114,7 @@
   import { useToast } from '@/plugins/toast';
   import ResumeDetailModal from '@/modules/resume/ResumeDetailModal.vue';
   import { deletePersonnel, listPersonnel } from '@/composables/useApi';
+  import cloneDeep from 'lodash.clonedeep';
 
   const props = withDefaults(defineProps<{ mode?: 'edit' | 'select' }>(), { mode: 'edit' });
   const emit = defineEmits<{ (e: 'selected', v: Personnel): void }>();
@@ -183,6 +184,9 @@
   }
   function openEditor(item?: Personnel) {
     editing.value = item ?? null;
+    if (item) {
+      editing.value = cloneDeep(item);
+    }
     editorOpen.value = true;
   }
   async function onDelete(item: Personnel) {

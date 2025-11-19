@@ -14,7 +14,8 @@
         title="試験用紙管理"
         to="/exam-papers" />
       <v-list-item prepend-icon="mdi-clipboard-text" title="試験実施管理" to="/exam-runs" />
-      <v-list-item prepend-icon="mdi-lead-pencil" title="試験実施" to="/exam-session" />
+      <!-- <v-list-item prepend-icon="mdi-lead-pencil" title="試験実施" to="/exam-session" /> -->
+      <v-list-item prepend-icon="mdi-account-search" title="要員提案" to="/proposal" />
     </v-list>
   </v-navigation-drawer>
 </template>

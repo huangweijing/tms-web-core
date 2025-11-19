@@ -12,6 +12,7 @@ import { ExamPaper } from '@/types/models/ExamPaper';
 import { useExamPaperStore } from '@/store/examPaperStore';
 import { ExamRun } from '@/types/models/ExamRun';
 import { useExamRunStore } from '@/store/examRunStore';
+import cloneDeep from 'lodash.clonedeep';
 
 // Storeを利用する人材管理リポ
 export class PersonnelStoreRepo implements Repo<Personnel> {
@@ -39,6 +40,7 @@ export class PersonnelStoreRepo implements Repo<Personnel> {
     return ret;
   }
   save(personnel: Personnel): void {
+    personnel = cloneDeep(personnel);
     const i = this.store.items.findIndex((v) => v.人材ＩＤ === personnel.人材ＩＤ);
     i >= 0 ? this.store.items.splice(i, 1, personnel) : this.store.items.push(personnel);
   }
@@ -77,6 +79,7 @@ export class QuestionStoreRepo implements Repo<Question> {
   }
 
   save(question: Question): void {
+    question = cloneDeep(question);
     // 既存なら更新日時だけ更新
     const i = this.store.items.findIndex((v) => v.問題ＩＤ === question.問題ＩＤ);
     if (i >= 0) {
@@ -120,6 +123,7 @@ export class ResumeDataStoreRepo implements Repo<ResumeData> {
     return ret;
   }
   save(resumeData: ResumeData): void {
+    resumeData = cloneDeep(resumeData);
     const i = this.store.items.findIndex((v) => v.人材ＩＤ === resumeData.人材ＩＤ);
     i >= 0 ? this.store.items.splice(i, 1, resumeData) : this.store.items.push(resumeData);
   }
@@ -155,6 +159,7 @@ export class SkillStoreRepo implements Repo<PersonnelSkillPayload> {
     return ret;
   }
   save(personnel: PersonnelSkillPayload): void {
+    personnel = cloneDeep(personnel);
     const i = this.store.items.findIndex((v) => v.人材ＩＤ === personnel.人材ＩＤ);
     i >= 0 ? this.store.items.splice(i, 1, personnel) : this.store.items.push(personnel);
   }
@@ -193,6 +198,7 @@ export class ExamPaperStoreRepo implements Repo<ExamPaper> {
   }
 
   save(examPaper: ExamPaper): void {
+    examPaper = cloneDeep(examPaper);
     // 既存なら更新日時だけ更新
     const i = this.store.items.findIndex((v) => v.試験用紙ＩＤ === examPaper.試験用紙ＩＤ);
     if (i >= 0) {
@@ -238,14 +244,15 @@ export class ExamRunStoreRepo implements Repo<ExamRun> {
     return hit;
   }
 
-  save(examPaper: ExamRun): void {
+  save(examRun: ExamRun): void {
+    examRun = cloneDeep(examRun);
     // 既存なら更新日時だけ更新
-    const i = this.store.items.findIndex((v) => v.試験ＩＤ === examPaper.試験ＩＤ);
+    const i = this.store.items.findIndex((v) => v.試験ＩＤ === examRun.試験ＩＤ);
     if (i >= 0) {
-      this.store.items.splice(i, 1, { ...examPaper });
+      this.store.items.splice(i, 1, { ...examRun });
     } else {
       this.store.items.push({
-        ...examPaper,
+        ...examRun,
       });
     }
   }
