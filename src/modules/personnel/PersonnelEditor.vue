@@ -16,12 +16,29 @@
           <v-col cols="12" md="6"><v-text-field v-model="form.所属会社" label="所属会社" /></v-col>
           <v-col cols="12" md="6"><v-text-field v-model="form.名前" label="名前" /></v-col>
           <v-col cols="12" md="6"><v-text-field v-model="form.社員番号" label="社員番号" /></v-col>
-          <v-col cols="12" md="6"
-            ><v-text-field v-model="form.生年月日" label="生年月日(YYYYMMDD)"
-          /></v-col>
-          <v-col cols="12" md="6"
-            ><v-text-field v-model="form.現案件終了年月日" label="現案件終了年月日(YYYYMMDD)"
-          /></v-col>
+          <v-col cols="12" md="6">
+            <!-- <v-text-field v-model="form.生年月日" label="生年月日(YYYY/MM/DD)" /> -->
+
+            <v-locale-provider locale="ja">
+              <v-date-input
+                prepend-icon=""
+                input-format="yyyymmdd"
+                v-model="form.生年月日"
+                label="生年月日(YYYY/MM/DD)">
+              </v-date-input>
+            </v-locale-provider>
+          </v-col>
+          <v-col cols="12" md="6">
+            <!-- <v-text-field v-model="form.現案件終了年月日" label="現案件終了年月日(YYYYMMDD)" /> -->
+
+            <v-locale-provider locale="ja">
+              <v-date-input
+                prepend-icon=""
+                v-model="form.現案件終了年月日"
+                label="現案件終了年月日(YYYY/MM/DD)">
+              </v-date-input>
+            </v-locale-provider>
+          </v-col>
           <v-col cols="12" md="6"
             ><v-select
               v-model="form.BPフラグ"
@@ -55,6 +72,7 @@
   import { useToast } from '@/plugins/toast';
   import ErrorDialog from '@/components/common/ErrorDialog.vue';
   import { createPersonnel, updatePersonnel } from '@/composables/useApi';
+  import { VDateInput } from 'vuetify/labs/VDateInput';
 
   const props = defineProps<{ open: boolean; item?: Personnel | null }>();
   const emit = defineEmits<{

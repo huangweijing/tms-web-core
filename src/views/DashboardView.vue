@@ -112,6 +112,17 @@
       </v-card-title>
       <v-card-text> </v-card-text>
     </v-card>
+    <v-card class="mb-4">
+      <v-card-title class="d-flex align-center ga-2">
+        <v-icon>mdi-calendar</v-icon>
+        カレンダー選択<v-spacer />
+        <!-- <v-date-picker v-model="pickedDate" label="日付を選択" /> -->
+        <v-locale-provider locale="ja">
+          <v-date-input v-model="pickedDate" label="日付を選択" variant="outlined" />
+        </v-locale-provider>
+      </v-card-title>
+      <v-card-text> </v-card-text>
+    </v-card>
 
     <ResumeDetailModal v-model:open="selectOpenResumeDetail"></ResumeDetailModal>
     <PersonnelSelectModal v-model:open="selectOpenPersonnel" @selected="onSelectedPersonnel" />
@@ -132,6 +143,7 @@
   import ResumeDetailModal from '@/modules/resume/ResumeDetailModal.vue';
   import { ExamRunStoreRepo } from '@/data/RepoStoreImp';
   import { Pagination } from '@/types/models/Pagination';
+  import { VDateInput } from 'vuetify/labs/VDateInput';
 
   const toast = useToast();
   const selectOpenResumeDetail = ref(false);
@@ -148,6 +160,7 @@
   const onSelectedQuestion = (item: any) => {
     selectedQuestion.value = item;
   };
+  const pickedDate = ref<string | null>(null);
 
   onMounted(() => {
     const res = new ExamRunStoreRepo().list({
