@@ -46,6 +46,8 @@
             :headers="candidateHeaders"
             :items="candidates"
             item-key="人材ＩＤ"
+            :items-per-page="-1"
+            hide-default-footer
             class="elevation-1 rounded-lg">
             <template #item.BPフラグ="{ item }">
               <v-chip size="small" :color="item.BPフラグ === 0 ? 'primary' : 'secondary'">
@@ -97,28 +99,132 @@
           適任要員分析
         </v-btn>
       </v-card-title>
+
       <v-card-text>
+        <!-- ローディング中 -->
         <template v-if="analyzing">
           <v-skeleton-loader type="table" />
         </template>
+
+        <!-- まだ結果がない場合 -->
         <template v-else-if="analysisResults.length === 0">
           <div class="text-body-2 text-medium-emphasis">
             分析結果はまだありません。「適任要員分析」ボタンを押して分析を実行してください。
           </div>
         </template>
+
+        <!-- 結果がある場合 -->
         <template v-else>
-          <v-data-table
-            :headers="analysisHeaders"
-            :items="rankedResults"
-            item-key="人材ID"
-            class="elevation-1 rounded-lg">
-            <template #item.rank="{ item }">
-              <span>{{ item.rank }}</span>
+          <!-- 説明＋AIバッジ -->
+          <div class="d-flex align-center justify-space-between mb-3">
+            <div>
+              <div class="text-subtitle-2 font-weight-medium">適任要員分析結果</div>
+              <div class="text-caption text-medium-emphasis">
+                募集要項と候補要員のスキル・経歴をもとに、マッチ度の高い順に表示しています。
+              </div>
+            </div>
+          </div>
+
+          <!-- 凡例（任意） -->
+          <div class="d-flex flex-wrap ga-2 text-caption text-medium-emphasis mb-2">
+            <div class="d-flex align-center ga-1">
+              <v-chip size="x-small" color="success" variant="flat" class="px-2"
+                >マッチ率 >= 80%</v-chip
+              >
+              即戦力候補
+            </div>
+            <div class="d-flex align-center ga-1">
+              <v-chip size="x-small" color="primary" variant="flat" class="px-2"
+                >80% > マッチ率 >= 60%</v-chip
+              >
+              強候補
+            </div>
+            <div class="d-flex align-center ga-1">
+              <v-chip size="x-small" color="warning" variant="flat" class="px-2"
+                >60% > マッチ率 >= 40%</v-chip
+              >
+              要検討
+            </div>
+            <div class="d-flex align-center ga-1">
+              <v-chip size="x-small" color="error" variant="flat" class="px-2"
+                >40% > マッチ率</v-chip
+              >
+              アンマッチ
+            </div>
+          </div>
+
+          <v-divider class="mb-2" />
+
+          <!-- ランキング本体：v-list ベース -->
+          <v-list density="comfortable" lines="two" class="py-0">
+            <template v-for="(item, index) in rankedResults" :key="item.人材ID">
+              <v-list-item>
+                <!-- 左側：順位バッジ -->
+                <template #prepend>
+                  <v-avatar :color="scoreChipColor(item.マッチ率)" size="40" class="elevation-2">
+                    <span class="text-body-1 font-weight-bold">
+                      {{ item.rank }}
+                    </span>
+                  </v-avatar>
+                </template>
+
+                <!-- タイトル：名前 -->
+                <template #title>
+                  <div class="d-flex align-center ga-2">
+                    <span>{{ item.名前 }}</span>
+                  </div>
+                  <div class="d-flex flex-column ga-1">
+                    <div class="d-flex align-center ga-2">
+                      <span class="text-caption text-medium-emphasis">マッチ率</span>
+                      <v-chip
+                        size="small"
+                        :color="scoreChipColor(item.マッチ率)"
+                        variant="flat"
+                        class="px-3">
+                        {{ item.マッチ率 }}%
+                      </v-chip>
+                      <v-spacer />
+                      <span
+                        v-if="item.スキル採点 && item.スキル採点.length > 0"
+                        class="text-caption text-medium-emphasis"
+                        >マッチスキル</span
+                      >
+                      <v-chip
+                        v-for="q in item.スキル採点"
+                        :key="q.スキル名"
+                        class="ma-1"
+                        size="small"
+                        variant="tonal"
+                        color="primary"
+                        >{{ q.スキル名 }}: {{ q.スキル点数 }}</v-chip
+                      >
+                    </div>
+                    <v-progress-linear
+                      :model-value="item.マッチ率"
+                      height="6"
+                      rounded
+                      :color="scoreBarColor(item.マッチ率)" />
+                  </div>
+                </template>
+
+                <!-- サブタイトル：マッチ率＋バー＋コメント -->
+                <template #subtitle>
+                  <div class="d-flex flex-column ga-1">
+                    <div class="text-body-2 mt-1">
+                      {{ item.コメント }}
+                    </div>
+                  </div>
+                </template>
+              </v-list-item>
+
+              <!-- 行の区切り線 -->
+              <v-divider v-if="index < rankedResults.length - 1" inset />
             </template>
-            <template #item.マッチ率="{ item }">
-              <span>{{ item.マッチ率 }}%</span>
-            </template>
-          </v-data-table>
+          </v-list>
+
+          <div class="text-caption text-medium-emphasis text-right mt-2">
+            ※ コメントはAIが自動生成したサマリを元にしています。
+          </div>
         </template>
       </v-card-text>
     </v-card>
@@ -145,17 +251,17 @@
   import ResumeDetailModal from '@/modules/resume/ResumeDetailModal.vue';
   import ErrorDialog from '@/components/common/ErrorDialog.vue';
   import type { Personnel } from '@/types/models/Personnel';
-  import type { CandidateAnalysis } from '@/composables/useApi';
   import { useToast } from '@/plugins/toast';
-  import type { Proposal, ProposalAnalyseResult } from '@/types/models/Proposal';
-  import { PersonnelStoreRepo, ResumeDataStoreRepo, SkillStoreRepo } from '@/data/RepoStoreImp';
+  import type { Proposal, ProposalAnalyseResult, CandidateAnalysis } from '@/types/models/Proposal';
+  import { ResumeDataStoreRepo, SkillStoreRepo, ProposalStoreRepo } from '@/data/RepoStoreImp';
   import cloneDeep from 'lodash.clonedeep';
   import { http } from '@/plugins/axios';
+  import { uuid } from '@/composables/useApi';
 
   const toast = useToast();
 
   const props = defineProps<{
-    proposal?: Proposal | null;
+    proposalId?: string | null;
     saving?: boolean;
   }>();
 
@@ -229,45 +335,65 @@
   });
 
   const canSave = computed(() => {
-    return (
-      proposalName.value.trim().length > 0 &&
-      jobDescription.value.trim().length > 0 &&
-      hasChanges.value
-    );
+    return true;
+    // return (
+    //   proposalName.value.trim().length > 0 &&
+    //   jobDescription.value.trim().length > 0 &&
+    //   hasChanges.value
+    // );
   });
+
+  function load() {
+    if (!props.proposalId) return;
+    const p = new ProposalStoreRepo().findById(props.proposalId);
+    console.log('opening... ' + p);
+
+    if (!p) return;
+    proposalName.value = p.提案名;
+    jobDescription.value = p.募集要項;
+    candidates.value = p.対象人材;
+    if (p.分析結果) analysisResults.value = p.分析結果;
+  }
 
   // props.proposal 変更時にフォームへ反映
   watch(
-    () => props.proposal,
-    (p) => {
-      if (p) {
-        proposalId.value = p.提案ID;
-        proposalName.value = p.提案名;
-        jobDescription.value = p.募集要項;
-        originalProposal.value = { ...p };
-      } else {
-        const id = generateUuid();
-        proposalId.value = id;
-        proposalName.value = '';
-        jobDescription.value = '';
-        originalProposal.value = {
-          提案ID: id,
-          提案名: '',
-          募集要項: '',
-        };
+    () => props.proposalId,
+    (newId) => {
+      if (newId) {
+        const p = new ProposalStoreRepo().findById(newId);
+        if (p) {
+          proposalId.value = p.提案ID;
+          proposalName.value = p.提案名;
+          jobDescription.value = p.募集要項;
+          candidates.value = p.対象人材;
+          if (p.分析結果) analysisResults.value = p.分析結果;
+          originalProposal.value = { ...p };
+        } else {
+          const id = generateUuid();
+          proposalId.value = id;
+          proposalName.value = '';
+          jobDescription.value = '';
+          originalProposal.value = {
+            提案ID: id,
+            提案名: '',
+            募集要項: '',
+            対象人材: [],
+          };
+        }
+        candidates.value = [];
+        analysisResults.value = [];
       }
-      candidates.value = [];
-      analysisResults.value = [];
     },
     { immediate: true }
   );
 
   function generateUuid(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+    return uuid();
+    // return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    //   const r = (Math.random() * 16) | 0;
+    //   const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    //   return v.toString(16);
+    // });
   }
 
   function openSelectModal() {
@@ -306,22 +432,17 @@
         nameMap.set(p.人材ＩＤ, p.名前);
         delete resume?.AI分析結果;
         const skill = skillRepo.findById(p.人材ＩＤ);
-        console.log(p);
-        console.log(resume);
-        console.log(skill);
         req.push({
           id: p.人材ＩＤ,
           経歴情報: resume,
           スキル採点情報: skill,
         });
       });
-      console.log(req);
 
       const { data } = await http.post<ProposalAnalyseResult[]>('/api/proposal/analyse', {
         募集要項: jobDescription.value,
         候補要員: req,
       });
-      console.log(data);
       const results: CandidateAnalysis[] = [];
       data.forEach((res) => {
         results.push({
@@ -329,31 +450,13 @@
           名前: nameMap.get(res.人材ＩＤ) ?? '',
           マッチ率: res.マッチ率,
           コメント: res.理由,
+          スキル採点: res.スキル採点,
         });
-        res.人材ＩＤ;
       });
-
-      // const baseScore = 85;
-      // const step = 7;
-
-      // const normalized = jobDescription.value.replace(/\s+/g, ' ').trim();
-      // const preview = normalized.slice(0, 60) || '募集要項の記載内容';
-
-      // const results: CandidateAnalysis[] = candidates.value.map((p, index) => {
-      //   const score = Math.max(60, baseScore - index * step);
-      //   return {
-      //     人材ID: p.人材ＩＤ,
-      //     名前: p.名前,
-      //     マッチ率: score,
-      //     コメント:
-      //       `募集要項（例:「${preview}…」）に対して、${p.名前}さんはこれまでの経験・スキルが近く、` +
-      //       '早期に戦力化が期待できると想定されます。',
-      //   };
-      // });
 
       results.sort((a, b) => b.マッチ率 - a.マッチ率);
       analysisResults.value = results;
-      toast.show('（デモ）適任要員の分析結果を表示しました', 'success');
+      toast.show('適任要員の分析が完了しました', 'success');
     } catch (e) {
       errorMessage.value = '適任要員の分析に失敗しました';
       errorOpen.value = true;
@@ -378,15 +481,30 @@
       提案ID: proposalId.value,
       提案名: proposalName.value.trim(),
       募集要項: jobDescription.value.trim(),
+      対象人材: candidates.value,
+      分析結果: analysisResults.value,
     };
     emit('save', payload);
     // 画面を閉じずに連続編集するケースに備えて、自分の中の "基準" も更新しておく
     originalProposal.value = { ...payload };
   }
 
-  // canSave と onSave を親から使えるようにする
+  function scoreChipColor(score: number) {
+    if (score >= 80) return 'success';
+    if (score >= 60) return 'primary';
+    if (score >= 40) return 'warning';
+    return 'error';
+  }
+
+  function scoreBarColor(score: number) {
+    // チップと同じ判定でOK
+    return scoreChipColor(score);
+  }
+
+  // load, canSave と onSave を親から使えるようにする
   defineExpose({
     canSave,
     onSave,
+    load,
   });
 </script>

@@ -14,6 +14,7 @@ import {
   ExamRunStoreRepo,
   PersonnelFilters,
   PersonnelStoreRepo,
+  ProposalStoreRepo,
   QuestionStoreRepo,
   SkillStoreRepo,
 } from '@/data/RepoStoreImp';
@@ -322,8 +323,6 @@ export function buildSubmissionPayload(
 
 // 試験提出
 export async function submitExamAnswers(payload: ExamSubmissionPayload): Promise<void> {
-  debugger;
-  console.log('submitExamAnswers payload', payload);
   const repo: ExamRunStoreRepo = new ExamRunStoreRepo();
   const examRun = repo.findById(payload.試験ＩＤ);
   if (!examRun) throw new Error('試験実施情報が存在しません。');
@@ -472,76 +471,27 @@ export async function reflectSkillPoint(examId: string): Promise<SkillUpdate[]> 
   return updateRes;
 }
 
-export interface CandidateAnalysis {
-  人材ID: string;
-  名前: string;
-  マッチ率: number;
-  コメント: string;
+// 試験実施一覧検索
+export async function listProposals(
+  // filters: RunFilters,
+  page = 1,
+  pageSize = 10
+): Promise<ApiListResult<Proposal>> {
+  const pagination: Pagination = {
+    page: page,
+    size: pageSize,
+  };
+  const repo = new ProposalStoreRepo();
+  const res: PageResult<Proposal> = repo.list(pagination);
+  return delay({ items: res.items, total: res.total });
 }
 
-export async function analyzeCandidates(
-  requirementSummary: string,
-  candidates: Personnel[]
-): Promise<CandidateAnalysis[]> {
-  await delay(800);
-  const results: CandidateAnalysis[] = candidates.map((p, index) => {
-    const base = 60 + (candidates.length - index) * 5;
-    const random = Math.floor(Math.random() * 10);
-    const score = Math.min(100, base + random);
-    return {
-      人材ID: p.人材ＩＤ,
-      名前: p.名前,
-      マッチ率: score,
-      コメント: `${requirementSummary} に対して、${p.名前}さんはこれまでの経歴とスキルセットが近く、早期にキャッチアップできると想定されます。`,
-    };
-  });
-  results.sort((a, b) => b.マッチ率 - a.マッチ率);
-  return results;
-}
-const mockProposals: Proposal[] = [
-  {
-    提案ID: 'f8b92b3a-7c5b-4b1c-a8b0-dc1f8a7d1b62',
-    提案名: 'ECサイト保守開発 要員提案',
-    募集要項:
-      '自社ECサイトの保守開発案件です。Java / Spring Boot を用いたサーバサイド開発と、Vue / TypeScript によるフロントエンド改修が主な業務です。',
-  },
-  {
-    提案ID: '38d0a0f8-9e32-4ab5-8c62-3b44084d3e07',
-    提案名: '業務システム刷新プロジェクト 要員提案',
-    募集要項:
-      '基幹業務システム刷新案件における要員提案です。要件定義〜結合テストまでをリードできるPM/PLクラスの人材を想定しています。',
-  },
-];
-
-export async function listProposals(keyword?: string): Promise<Proposal[]> {
-  await delay(300);
-  if (!keyword) {
-    return [...mockProposals];
-  }
-  const lower = keyword.toLowerCase();
-  return mockProposals.filter((p) => {
-    return (
-      p.提案ID.toLowerCase().includes(lower) ||
-      p.提案名.toLowerCase().includes(lower) ||
-      p.募集要項.toLowerCase().includes(lower)
-    );
-  });
-}
-
-export async function saveProposal(proposal: Proposal): Promise<void> {
-  await delay(300);
-  const idx = mockProposals.findIndex((p) => p.提案ID === proposal.提案ID);
-  if (idx === -1) {
-    mockProposals.push({ ...proposal });
-  } else {
-    mockProposals[idx] = { ...proposal };
-  }
+export async function saveProposal(proposal: Proposal): Promise<Proposal> {
+  new ProposalStoreRepo().save(proposal);
+  return delay(proposal, 800);
 }
 
 export async function deleteProposal(id: string): Promise<void> {
-  await delay(300);
-  const idx = mockProposals.findIndex((p) => p.提案ID === id);
-  if (idx !== -1) {
-    mockProposals.splice(idx, 1);
-  }
+  new ProposalStoreRepo().remove(id);
+  return delay(undefined, 500);
 }

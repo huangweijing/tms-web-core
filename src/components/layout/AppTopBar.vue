@@ -29,13 +29,45 @@
       ><v-icon>mdi-account-search</v-icon></v-btn
     >
 
-    <v-snackbar
+    <!-- <v-snackbar
       v-model="snackbarModel"
       location="top right"
       :timeout="3000"
       :color="toast.color.value"
       variant="tonal">
       {{ toast.message }}
+    </v-snackbar> -->
+
+    <v-snackbar
+      v-model="snackbarModel"
+      location="top right"
+      :timeout="timeoutByType"
+      class="app-snackbar"
+      variant="plain"
+      transition="slide-x-reverse-transition">
+      <!-- 中身は今の v-alert カードでOK -->
+      <v-alert
+        :color="alertColor"
+        :icon="iconByType"
+        variant="elevated"
+        border="start"
+        :border-color="alertColor"
+        density="comfortable"
+        class="app-snackbar__alert">
+        <div class="d-flex align-center ga-3">
+          <div class="flex-grow-1">
+            <div class="text-subtitle-2 font-weight-medium">
+              {{ titleByType }}
+            </div>
+            <div class="text-body-2">
+              {{ toast.message }}
+            </div>
+          </div>
+          <v-btn icon variant="text" density="comfortable" @click="snackbarModel = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+      </v-alert>
     </v-snackbar>
   </v-app-bar>
 </template>
@@ -49,4 +81,54 @@
     set: (v: boolean) => (toast.open.value = v),
   });
   const ui = useUiStore();
+
+  // Vuetifyのカラーにマッピング（infoだけprimaryに寄せる）
+  const alertColor = computed(() => {
+    switch (toast.color.value) {
+      case 'success':
+        return 'success';
+      case 'error':
+        return 'error';
+      case 'info':
+      default:
+        return 'primary';
+    }
+  });
+
+  const titleByType = computed(() => {
+    switch (toast.color.value) {
+      case 'success':
+        return '完了しました';
+      case 'error':
+        return 'エラーが発生しました';
+      case 'info':
+      default:
+        return 'お知らせ';
+    }
+  });
+
+  const iconByType = computed(() => {
+    switch (toast.color.value) {
+      case 'success':
+        return 'mdi-check-circle';
+      case 'error':
+        return 'mdi-alert-circle';
+      case 'info':
+      default:
+        return 'mdi-information';
+    }
+  });
+
+  const timeoutByType = computed(() => (toast.color.value === 'error' ? 5000 : 3000));
 </script>
+<style scoped>
+  /* .app-snackbar {
+    max-width: 420px;
+  } */
+
+  .app-snackbar__alert {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+  }
+</style>

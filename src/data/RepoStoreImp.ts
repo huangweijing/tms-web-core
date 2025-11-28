@@ -14,6 +14,8 @@ import { ExamRun } from '@/types/models/ExamRun';
 import { useExamRunStore } from '@/store/examRunStore';
 import cloneDeep from 'lodash.clonedeep';
 import { formatDate } from '@/composables/useApi';
+import { Proposal } from '@/types/models/Proposal';
+import { useProposalStore } from '@/store/proposalStore';
 
 // 人材検索時条件
 export interface PersonnelFilters extends RepoFilter {
@@ -36,32 +38,23 @@ export class PersonnelStoreRepo implements Repo<Personnel> {
     const store = usePersonnelStore();
     const pFilter = filter as PersonnelFilters;
     const start = (p.page - 1) * p.size;
-    // const items = store.items;
-    // console.log(items);
-    console.log(pFilter);
     let 案件終了FROM: string = '';
     let 案件終了TO: string = '';
     if (pFilter.案件終了日_FROM) 案件終了FROM = formatDate(pFilter.案件終了日_FROM, 'yyyy/mm/dd');
     if (pFilter.案件終了日_TO) 案件終了TO = formatDate(pFilter.案件終了日_TO, 'yyyy/mm/dd');
-    console.log(案件終了FROM);
-    console.log(案件終了TO);
     const items = this.store.items.filter((item) => {
-      console.log(item.現案件終了年月日);
       if (pFilter.案件終了日_FROM) {
         if (案件終了FROM <= item.現案件終了年月日) {
-          console.log('from:false');
           // return false;
         } else return false;
       }
       if (pFilter.案件終了日_TO) {
         if (案件終了TO >= item.現案件終了年月日) {
-          console.log('to:false');
           // return false;
         } else return false;
       }
       return true;
     });
-    console.log(items.length);
     return {
       items: items.slice(start, start + p.size),
       total: items.length,
@@ -72,7 +65,6 @@ export class PersonnelStoreRepo implements Repo<Personnel> {
     const store = usePersonnelStore();
     const start = (p.page - 1) * p.size;
     const items = store.items;
-    console.log(items.length);
     return {
       items: items.slice(start, start + p.size),
       total: items.length,
@@ -308,47 +300,47 @@ export class ExamRunStoreRepo implements Repo<ExamRun> {
   }
 }
 
-// export class ExamPaperStoreRepo implements Repo<ExamPaper> {
-//   private store: ReturnType<typeof useExamPaperStore>;
-//   constructor(store = useExamPaperStore()) {
-//     this.store = store;
-//   }
+export class ProposalStoreRepo implements Repo<Proposal> {
+  private store: ReturnType<typeof useProposalStore>;
+  constructor(store = useProposalStore()) {
+    this.store = store;
+  }
 
-//   list(p: Pagination): PageResult<ExamPaper> {
-//     const { page, size } = p;
+  list(p: Pagination): PageResult<Proposal> {
+    const { page, size } = p;
 
-//     // フィルタ
-//     let arr = this.store.items;
+    // フィルタ
+    let arr = this.store.items;
 
-//     // ページング（1始まり）
-//     const start = Math.max(0, (page - 1) * size);
+    // ページング（1始まり）
+    const start = Math.max(0, (page - 1) * size);
 
-//     return {
-//       items: this.store.items.slice(start, start + p.size),
-//       total: this.store.items.length,
-//     };
-//   }
+    return {
+      items: this.store.items.slice(start, start + p.size),
+      total: this.store.items.length,
+    };
+  }
 
-//   findById(id: string): ExamPaper | undefined {
-//     const hit = this.store.items.find((v) => v.試験用紙ＩＤ === id);
-//     // if (!hit) throw new Error(`問題ＩＤ [${id}] が見つかりません`);
-//     return hit;
-//   }
+  findById(id: string): Proposal | undefined {
+    const hit = this.store.items.find((v) => v.提案ID === id);
+    // if (!hit) throw new Error(`問題ＩＤ [${id}] が見つかりません`);
+    return hit;
+  }
 
-//   save(examPaper: ExamPaper): void {
-//     // 既存なら更新日時だけ更新
-//     const i = this.store.items.findIndex((v) => v.試験用紙ＩＤ === examPaper.試験用紙ＩＤ);
-//     if (i >= 0) {
-//       this.store.items.splice(i, 1, { ...examPaper });
-//     } else {
-//       this.store.items.push({
-//         ...examPaper,
-//       });
-//     }
-//   }
+  save(proposal: Proposal): void {
+    // 既存なら更新日時だけ更新
+    const i = this.store.items.findIndex((v) => v.提案ID === proposal.提案ID);
+    if (i >= 0) {
+      this.store.items.splice(i, 1, { ...proposal });
+    } else {
+      this.store.items.push({
+        ...proposal,
+      });
+    }
+  }
 
-//   remove(id: string): void {
-//     const i = this.store.items.findIndex((v) => v.試験用紙ＩＤ === id);
-//     if (i >= 0) this.store.items.splice(i, 1);
-//   }
-// }
+  remove(id: string): void {
+    const i = this.store.items.findIndex((v) => v.提案ID === id);
+    if (i >= 0) this.store.items.splice(i, 1);
+  }
+}

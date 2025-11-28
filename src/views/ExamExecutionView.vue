@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="p-4">
     <!-- パンくず -->
-    <v-breadcrumbs :items="breadcrumbs" density="comfortable" class="mb-4" />
+    <v-breadcrumbs :items="breadcrumbs" density="comfortable" />
 
     <!-- ローディング中 -->
     <SkeletonExamLoader v-if="loading" />

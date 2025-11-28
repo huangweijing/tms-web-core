@@ -19,7 +19,7 @@
       </v-toolbar>
 
       <v-card-text class="flex-grow-1 overflow-y-auto">
-        <ProposalEditor ref="editorRef" :proposal="proposal" @save="onSave" :saving="saving" />
+        <ProposalEditor ref="editorRef" :proposal-id="proposalId" @save="onSave" :saving="saving" />
       </v-card-text>
 
       <v-card-actions>
@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch, nextTick } from 'vue';
   import ProposalEditor from '@/modules/proposal/ProposalEditor.vue';
   import type { Proposal } from '@/types/models/Proposal';
   const isFullscreen = ref(false);
@@ -48,7 +48,7 @@
   const props = withDefaults(
     defineProps<{
       open: boolean;
-      proposal: Proposal | null;
+      proposalId: string | null;
       saving?: boolean;
     }>(),
     {
@@ -62,9 +62,22 @@
     (e: 'save', v: Proposal): void;
   }>();
 
+  // モーダル画面開く際に初期ロード
+  watch(
+    () => props.open,
+    async (v) => {
+      if (v) {
+        await nextTick();
+        editorRef.value?.load();
+      }
+    }
+  );
+
   const dialogModel = computed({
     get: () => props.open,
-    set: (v: boolean) => emit('update:open', v),
+    set: (v: boolean) => {
+      emit('update:open', v);
+    },
   });
 
   function close() {
@@ -77,9 +90,7 @@
   }
 
   function save() {
-    console.log('保存よ');
     if (editorRef.value && editorRef.value.canSave) {
-      console.log('保存よ２');
       editorRef.value.onSave();
     }
   }

@@ -97,6 +97,7 @@
         >
       </v-card-actions>
     </v-card>
+    <v-overlay :model-value="saving || analysing" persistent />
 
     <ResumeSaveModal v-model:open="openResumeSaveModal" @saved="onSave" />
   </v-dialog>
